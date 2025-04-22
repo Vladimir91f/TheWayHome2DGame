@@ -6,13 +6,16 @@ extends CharacterBody2D
 @onready var Sprite = $Sprite
 @onready var Collider = $Collider
 @onready var Animator = $Animator
+@onready var Camera = $Camera
+@onready var States = $StateMachine
 
 # Physics variables
 const RunSpeed = 150
-const Acceleration = 40
+const Acceleration = 30 #если сделать слишком маленьким, будет эффект скольжения, как на льду
+const Deceleration = 25
 const Gravity = 300
 const JumpVelocity = -150
-const MaxJumps = 1
+const MaxJumps = 1 #если увеличить можно сделать двойные прыжки
 
 var moveSpeed = RunSpeed
 var moveDirectionX = 0
@@ -27,17 +30,54 @@ var keyRight = false
 var keyJump = false
 var keyJumpPressed = false
 
+# State Machine
+var currentState = null
+var previousState = null
+
 #endregion
 
-func _physics_process(_delta: float) -> void:
-	
+#region Main Loop functions
+
+func _ready() -> void:
+	# Initialize State Machine
+	for state in States.get_children():
+		state.States = States
+		state.Player = self
+	previousState = States.Fall
+	currentState = States.Fall
+
+func _draw() -> void:
+	currentState.Draw()
+
+func _physics_process(delta: float) -> void:
+	# Get input states
 	GetInputStates()
 	
+	# Update State
+	currentState.Update()
+	
+	# Handle Movements
+	HandleGravity(delta)
 	HorizontalMovement()
+	HandleJump()
 	
-	HandleAnimation()
-	
+	# Commit movement
 	move_and_slide()
+	
+	# Handle animation
+	HandleAnimation()
+
+func ChangeState(newState):
+	if(newState != null):
+		previousState = currentState
+		currentState = newState
+		previousState.ExitState()
+		currentState.EnterState()
+		print('Change State from: ' + previousState.Name + ' to: ' + currentState.Name)
+
+#endregion
+
+#region Custom functions
 
 func GetInputStates():
 	keyUp = Input.is_action_pressed("KeyUp")
@@ -50,12 +90,45 @@ func GetInputStates():
 	if(keyRight): facing = 1
 	if(keyLeft): facing = -1
 
-func HorizontalMovement():
+func HorizontalMovement(acceleration: float = Acceleration, deceleration: float = Deceleration):
 	moveDirectionX = Input.get_axis("KeyLeft", "KeyRight")
-	velocity.x = move_toward(velocity.x, moveDirectionX * moveSpeed, Acceleration)
-	
+	if(moveDirectionX != 0):
+		velocity.x = move_toward(velocity.x, moveDirectionX * moveSpeed, acceleration)
+	else: #для плавной остановки игрока
+		velocity.x = move_toward(velocity.x, moveDirectionX * moveSpeed, deceleration)
+
+func HandleFalliing():
+	if(!is_on_floor()):
+		ChangeState(States.Fall)
+
+func HandleLanding():
+	if(is_on_floor()):
+		jumps = 0
+		ChangeState(States.Idle)
+
+func HandleGravity(delta, gravity: float = Gravity):
+	if(!is_on_floor()):
+		velocity.y += gravity * delta
+
+func HandleJump():
+	if((keyJumpPressed) and (jumps < MaxJumps)):
+		velocity.y = JumpVelocity
+		jumps += 1
+
 func HandleAnimation():
-	Sprite.flip_h = facing < 0
+	Sprite.flip_h = (facing < 0)
 	
-# 36.28 (https://www.youtube.com/watch?v=STpems7xfe4&list=PLlOxT4J3Jmpxh5lRi5ugIdaXWJpZzAWj8&index=12)
+	if(is_on_floor()):
+		if(velocity.x != 0):
+			Animator.play('Run')
+		else:
+			Animator.play('Idle')
+	else:
+		if(velocity.y < 0):
+			Animator.play('Jump')
+		else:
+			Animator.play('Fall')
 	
+#endregion
+
+# 23:52 (https://www.youtube.com/watch?v=ECAeiRHxCD0&list=PLlOxT4J3Jmpxh5lRi5ugIdaXWJpZzAWj8&index=11)
