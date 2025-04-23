@@ -148,4 +148,5 @@ func HandleFlipH():
 
 #endregion
 
-# 00:00 ('')
+# How to Code Perfect WALL JUMPING In Your 2D Platformer 
+# 00:00 (https://www.youtube.com/watch?v=__FGlLna3PY&list=PLlOxT4J3Jmpxh5lRi5ugIdaXWJpZzAWj8&index=9)
