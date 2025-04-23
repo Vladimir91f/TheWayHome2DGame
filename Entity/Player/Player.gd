@@ -18,6 +18,7 @@ const JumpVelocity = -150
 const MaxJumps = 1 #если увеличить можно сделать двойные прыжки
 
 var moveSpeed = RunSpeed
+var jumpSpeed = JumpVelocity
 var moveDirectionX = 0
 var jumps = 0
 var facing = 1
@@ -54,18 +55,14 @@ func _physics_process(delta: float) -> void:
 	GetInputStates()
 	
 	# Update State
-	currentState.Update()
+	currentState.Update(delta)
 	
 	# Handle Movements
-	HandleGravity(delta)
 	HorizontalMovement()
 	HandleJump()
 	
 	# Commit movement
 	move_and_slide()
-	
-	# Handle animation
-	HandleAnimation()
 
 func ChangeState(newState):
 	if(newState != null):
@@ -97,7 +94,7 @@ func HorizontalMovement(acceleration: float = Acceleration, deceleration: float 
 	else: #для плавной остановки игрока
 		velocity.x = move_toward(velocity.x, moveDirectionX * moveSpeed, deceleration)
 
-func HandleFalliing():
+func HandleFalling():
 	if(!is_on_floor()):
 		ChangeState(States.Fall)
 
@@ -112,23 +109,12 @@ func HandleGravity(delta, gravity: float = Gravity):
 
 func HandleJump():
 	if((keyJumpPressed) and (jumps < MaxJumps)):
-		velocity.y = JumpVelocity
 		jumps += 1
+		ChangeState(States.Jump)
 
-func HandleAnimation():
-	Sprite.flip_h = (facing < 0)
-	
-	if(is_on_floor()):
-		if(velocity.x != 0):
-			Animator.play('Run')
-		else:
-			Animator.play('Idle')
-	else:
-		if(velocity.y < 0):
-			Animator.play('Jump')
-		else:
-			Animator.play('Fall')
-	
+func HandleFlipH():
+	Sprite.flip_h = (facing < 1)
+
 #endregion
 
-# 23:52 (https://www.youtube.com/watch?v=ECAeiRHxCD0&list=PLlOxT4J3Jmpxh5lRi5ugIdaXWJpZzAWj8&index=11)
+# 00:00 (https://www.youtube.com/watch?v=1H34TpJvCUs&list=PLlOxT4J3Jmpxh5lRi5ugIdaXWJpZzAWj8&index=10x=11)

@@ -1,8 +1,14 @@
-[gd_scene load_steps=10 format=3 uid="uid://je6a6pu6taev"]
+[gd_scene load_steps=16 format=3 uid="uid://je6a6pu6taev"]
 
 [ext_resource type="Texture2D" uid="uid://d0lbmwaw2ip8o" path="res://Resources/Character base.png" id="1_367n4"]
 [ext_resource type="Script" uid="uid://yiv3vhog7d82" path="res://Entity/Player/Player.gd" id="1_ic0o1"]
 [ext_resource type="Script" uid="uid://3nrwt2q0fv0h" path="res://Entity/Player/States.gd" id="3_rj2x4"]
+[ext_resource type="Script" uid="uid://b383bw232h42m" path="res://Entity/Player/IdleState.gd" id="4_0s3jf"]
+[ext_resource type="Script" uid="uid://b4mdtphfdqx2w" path="res://Entity/Player/LockedState.gd" id="4_mxhgp"]
+[ext_resource type="Script" uid="uid://c7g4doq2oeq3k" path="res://Entity/Player/RunState.gd" id="5_43y4t"]
+[ext_resource type="Script" uid="uid://csegl5gr4baqu" path="res://Entity/Player/JumpState.gd" id="6_wu0n7"]
+[ext_resource type="Script" uid="uid://ceqi0xfcep2bi" path="res://Entity/Player/JumpPeakState.gd" id="7_vk8em"]
+[ext_resource type="Script" uid="uid://bmp24hnpqheit" path="res://Entity/Player/FallState.gd" id="8_3xy24"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ic0o1"]
 size = Vector2(8, 20)
@@ -108,13 +114,19 @@ position_smoothing_enabled = true
 script = ExtResource("3_rj2x4")
 
 [node name="Locked" type="Node" parent="StateMachine"]
+script = ExtResource("4_mxhgp")
 
 [node name="Idle" type="Node" parent="StateMachine"]
+script = ExtResource("4_0s3jf")
 
 [node name="Run" type="Node" parent="StateMachine"]
+script = ExtResource("5_43y4t")
 
 [node name="Jump" type="Node" parent="StateMachine"]
+script = ExtResource("6_wu0n7")
 
 [node name="JumpPeak" type="Node" parent="StateMachine"]
+script = ExtResource("7_vk8em")
 
 [node name="Fall" type="Node" parent="StateMachine"]
+script = ExtResource("8_3xy24")
