@@ -96,7 +96,7 @@ script = ExtResource("1_ic0o1")
 texture = ExtResource("1_367n4")
 hframes = 8
 vframes = 14
-frame = 40
+frame = 8
 
 [node name="Collider" type="CollisionShape2D" parent="."]
 position = Vector2(0, 6)
@@ -109,6 +109,7 @@ libraries = {
 
 [node name="Camera" type="Camera2D" parent="."]
 position_smoothing_enabled = true
+position_smoothing_speed = 6.0
 
 [node name="StateMachine" type="Node" parent="."]
 script = ExtResource("3_rj2x4")
@@ -130,3 +131,11 @@ script = ExtResource("7_vk8em")
 
 [node name="Fall" type="Node" parent="StateMachine"]
 script = ExtResource("8_3xy24")
+
+[node name="Timers" type="Node" parent="."]
+
+[node name="JumpBufferTimer" type="Timer" parent="Timers"]
+one_shot = true
+
+[node name="CoyoteTimer" type="Timer" parent="Timers"]
+one_shot = true

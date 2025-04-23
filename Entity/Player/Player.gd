@@ -8,14 +8,21 @@ extends CharacterBody2D
 @onready var Animator = $Animator
 @onready var Camera = $Camera
 @onready var States = $StateMachine
+@onready var JumpBufferTimer = $Timers/JumpBufferTimer
+@onready var CoyoteTimer = $Timers/CoyoteTimer
 
 # Physics variables
-const RunSpeed = 150
-const Acceleration = 30 #если сделать слишком маленьким, будет эффект скольжения, как на льду
-const Deceleration = 25
-const Gravity = 300
-const JumpVelocity = -150
-const MaxJumps = 1 #если увеличить можно сделать двойные прыжки
+const RunSpeed = 120
+const Acceleration = 40 # Если сделать слишком маленьким, будет эффект скольжения, как на льду
+const Deceleration = 50
+const GravityJump = 600
+const GravityFall = 700
+const JumpVelocity = -240
+const MaxFallVelocity = 300
+const JumpMultiplier = 0.5
+const MaxJumps = 1 # Если увеличить можно сделать двойные прыжки
+const JumpBufferTime = 0.3 # 9 кадров: FPS / желаемое кол-во кадров = время в секундах
+const CoyoteTime = 0.3 # 6 кадров: FPS / желаемое кол-во кадров = время в секундах
 
 var moveSpeed = RunSpeed
 var jumpSpeed = JumpVelocity
@@ -58,6 +65,7 @@ func _physics_process(delta: float) -> void:
 	currentState.Update(delta)
 	
 	# Handle Movements
+	HandleMaxFallVelocity()
 	HorizontalMovement()
 	HandleJump()
 	
@@ -70,7 +78,7 @@ func ChangeState(newState):
 		currentState = newState
 		previousState.ExitState()
 		currentState.EnterState()
-		print('Change State from: ' + previousState.Name + ' to: ' + currentState.Name)
+		return
 
 #endregion
 
@@ -91,30 +99,53 @@ func HorizontalMovement(acceleration: float = Acceleration, deceleration: float 
 	moveDirectionX = Input.get_axis("KeyLeft", "KeyRight")
 	if(moveDirectionX != 0):
 		velocity.x = move_toward(velocity.x, moveDirectionX * moveSpeed, acceleration)
-	else: #для плавной остановки игрока
+	else: # Для плавной остановки игрока
 		velocity.x = move_toward(velocity.x, moveDirectionX * moveSpeed, deceleration)
 
 func HandleFalling():
 	if(!is_on_floor()):
+		# Запускаем койот-таймер
+		CoyoteTimer.start(CoyoteTime)
 		ChangeState(States.Fall)
+
+func HandleMaxFallVelocity():
+	if(velocity.y > MaxFallVelocity): velocity.y = MaxFallVelocity
+
+func HandleJumpBuffer():
+	if(keyJumpPressed):
+		JumpBufferTimer.start(JumpBufferTime)
 
 func HandleLanding():
 	if(is_on_floor()):
 		jumps = 0
 		ChangeState(States.Idle)
 
-func HandleGravity(delta, gravity: float = Gravity):
+func HandleGravity(delta, gravity: float = GravityJump):
 	if(!is_on_floor()):
 		velocity.y += gravity * delta
 
 func HandleJump():
-	if((keyJumpPressed) and (jumps < MaxJumps)):
-		jumps += 1
-		ChangeState(States.Jump)
+	if(is_on_floor()):
+		if(jumps < MaxJumps):
+			if(keyJumpPressed or JumpBufferTimer.time_left > 0):
+				JumpBufferTimer.stop()
+				jumps += 1
+				ChangeState(States.Jump)
+	else:
+		# Обработка прыжка в воздухе, если первый прыжок уже был сделан с земли
+		if(jumps < MaxJumps and jumps > 0 and keyJumpPressed):
+			jumps += 1
+			ChangeState(States.Jump)
+		# Обработка прыжка с таймером койота
+		if(CoyoteTimer.time_left > 0):
+			if(keyJumpPressed and jumps < MaxJumps):
+				CoyoteTimer.stop()
+				jumps += 1
+				ChangeState(States.Jump)
 
 func HandleFlipH():
 	Sprite.flip_h = (facing < 1)
 
 #endregion
 
-# 00:00 (https://www.youtube.com/watch?v=1H34TpJvCUs&list=PLlOxT4J3Jmpxh5lRi5ugIdaXWJpZzAWj8&index=10x=11)
+# 00:00 ('')
