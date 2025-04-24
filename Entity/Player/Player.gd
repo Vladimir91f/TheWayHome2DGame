@@ -27,14 +27,14 @@ const MaxFallVelocity = 700
 const JumpVelocity = -240
 const JumpMultiplier = 0.5
 const MaxJumps = 1 # Если увеличить можно сделать двойные прыжки
-const CoyoteTime = 0.3 # 0.1 - 6 кадров: FPS / желаемое кол-во кадров = время в секундах
-const JumpBufferTime = 0.3 # 0.15 - 9 кадров: FPS / желаемое кол-во кадров = время в секундах
+const CoyoteTime = 0.1 # 0.1 - 6 кадров: FPS / желаемое кол-во кадров = время в секундах
+const JumpBufferTime = 0.15 # 0.15 - 9 кадров: FPS / желаемое кол-во кадров = время в секундах
 
 const WallKickAcceleration = 4
 const WallKickDeceleration = 5
 const WallJumpYSpeedPeak = 0 # Скорость при которой прыжок от стены закончится и перейдет в состояние падения
 const WallJumpVelocity = -190
-const WallJumpSpeed = 120
+const WallJumpHSpeed = 120
 
 var moveSpeed = RunSpeed
 var jumpSpeed = JumpVelocity
@@ -127,8 +127,7 @@ func HandleLanding():
 func HandleWallJump():
 	GetWallDirection()
 	if((keyJumpPressed or JumpBufferTimer.time_left > 0) and wallDirection != Vector2.ZERO):
-		print('Wall Jump')
-		#ChangeState(States.WallJump)
+		ChangeState(States.WallJump)
 
 func GetWallDirection():
 	if(RCBottomRight.is_colliding()):
@@ -177,5 +176,5 @@ func HandleFlipH():
 
 #endregion
 
-# How to Code Perfect WALL JUMPING In Your 2D Platformer 
-# 21:00 (https://www.youtube.com/watch?v=__FGlLna3PY&list=PLlOxT4J3Jmpxh5lRi5ugIdaXWJpZzAWj8&index=9)
+# How to Code a PLATFORMER WALL CLIMB
+# 00:00

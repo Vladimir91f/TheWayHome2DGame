@@ -6,9 +6,6 @@ func EnterState():
 
 func ExitState():
 	pass
-	
-func Draw():
-	pass
 
 func Update(delta):
 	Player.HandleGravity(delta)
