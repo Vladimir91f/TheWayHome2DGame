@@ -11,23 +11,38 @@ extends CharacterBody2D
 @onready var JumpBufferTimer = $Timers/JumpBufferTimer
 @onready var CoyoteTimer = $Timers/CoyoteTimer
 
+@onready var RCBottomLeft = $Raycasts/WallJump/BottomLeft
+@onready var RCBottomRight = $Raycasts/WallJump/BottomRight
+
 # Physics variables
 const RunSpeed = 120
-const Acceleration = 40 # Если сделать слишком маленьким, будет эффект скольжения, как на льду
-const Deceleration = 50
+const GroundAcceleration = 40 # Если сделать слишком маленьким, будет эффект скольжения, как на льду
+const GroundDeceleration = 50
+const AirAcceleration = 15
+const AirDeceleration = 20
+
 const GravityJump = 600
 const GravityFall = 700
+const MaxFallVelocity = 700
 const JumpVelocity = -240
-const MaxFallVelocity = 300
 const JumpMultiplier = 0.5
 const MaxJumps = 1 # Если увеличить можно сделать двойные прыжки
-const JumpBufferTime = 0.3 # 9 кадров: FPS / желаемое кол-во кадров = время в секундах
-const CoyoteTime = 0.3 # 6 кадров: FPS / желаемое кол-во кадров = время в секундах
+const CoyoteTime = 0.3 # 0.1 - 6 кадров: FPS / желаемое кол-во кадров = время в секундах
+const JumpBufferTime = 0.3 # 0.15 - 9 кадров: FPS / желаемое кол-во кадров = время в секундах
+
+const WallKickAcceleration = 4
+const WallKickDeceleration = 5
+const WallJumpYSpeedPeak = 0 # Скорость при которой прыжок от стены закончится и перейдет в состояние падения
+const WallJumpVelocity = -190
+const WallJumpSpeed = 120
 
 var moveSpeed = RunSpeed
 var jumpSpeed = JumpVelocity
+var Acceleration = GroundAcceleration
+var Deceleration = GroundDeceleration
 var moveDirectionX = 0
 var jumps = 0
+var wallDirection = Vector2.ZERO
 var facing = 1
 
 # Input variables
@@ -84,17 +99,6 @@ func ChangeState(newState):
 
 #region Custom functions
 
-func GetInputStates():
-	keyUp = Input.is_action_pressed("KeyUp")
-	keyDown = Input.is_action_pressed("KeyDown")
-	keyLeft = Input.is_action_pressed("KeyLeft")
-	keyRight = Input.is_action_pressed("KeyRight")
-	keyJump = Input.is_action_pressed("KeyJump")
-	keyJumpPressed = Input.is_action_just_pressed("KeyJump")
-	
-	if(keyRight): facing = 1
-	if(keyLeft): facing = -1
-
 func HorizontalMovement(acceleration: float = Acceleration, deceleration: float = Deceleration):
 	moveDirectionX = Input.get_axis("KeyLeft", "KeyRight")
 	if(moveDirectionX != 0):
@@ -119,6 +123,31 @@ func HandleLanding():
 	if(is_on_floor()):
 		jumps = 0
 		ChangeState(States.Idle)
+
+func HandleWallJump():
+	GetWallDirection()
+	if((keyJumpPressed or JumpBufferTimer.time_left > 0) and wallDirection != Vector2.ZERO):
+		print('Wall Jump')
+		#ChangeState(States.WallJump)
+
+func GetWallDirection():
+	if(RCBottomRight.is_colliding()):
+		wallDirection = Vector2.RIGHT
+	elif(RCBottomLeft.is_colliding()):
+		wallDirection = Vector2.LEFT
+	else:
+		wallDirection = Vector2.ZERO
+
+func GetInputStates():
+	keyUp = Input.is_action_pressed("KeyUp")
+	keyDown = Input.is_action_pressed("KeyDown")
+	keyLeft = Input.is_action_pressed("KeyLeft")
+	keyRight = Input.is_action_pressed("KeyRight")
+	keyJump = Input.is_action_pressed("KeyJump")
+	keyJumpPressed = Input.is_action_just_pressed("KeyJump")
+	
+	if(keyRight): facing = 1
+	if(keyLeft): facing = -1
 
 func HandleGravity(delta, gravity: float = GravityJump):
 	if(!is_on_floor()):
@@ -149,4 +178,4 @@ func HandleFlipH():
 #endregion
 
 # How to Code Perfect WALL JUMPING In Your 2D Platformer 
-# 00:00 (https://www.youtube.com/watch?v=__FGlLna3PY&list=PLlOxT4J3Jmpxh5lRi5ugIdaXWJpZzAWj8&index=9)
+# 21:00 (https://www.youtube.com/watch?v=__FGlLna3PY&list=PLlOxT4J3Jmpxh5lRi5ugIdaXWJpZzAWj8&index=9)

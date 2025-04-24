@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3 uid="uid://je6a6pu6taev"]
+[gd_scene load_steps=17 format=3 uid="uid://je6a6pu6taev"]
 
 [ext_resource type="Texture2D" uid="uid://d0lbmwaw2ip8o" path="res://Resources/Character base.png" id="1_367n4"]
 [ext_resource type="Script" uid="uid://yiv3vhog7d82" path="res://Entity/Player/Player.gd" id="1_ic0o1"]
@@ -9,6 +9,7 @@
 [ext_resource type="Script" uid="uid://csegl5gr4baqu" path="res://Entity/Player/JumpState.gd" id="6_wu0n7"]
 [ext_resource type="Script" uid="uid://ceqi0xfcep2bi" path="res://Entity/Player/JumpPeakState.gd" id="7_vk8em"]
 [ext_resource type="Script" uid="uid://bmp24hnpqheit" path="res://Entity/Player/FallState.gd" id="8_3xy24"]
+[ext_resource type="Script" uid="uid://cxoseqlmtcmyh" path="res://Entity/Player/WallJumpState.gd" id="10_awppf"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ic0o1"]
 size = Vector2(8, 20)
@@ -132,6 +133,9 @@ script = ExtResource("7_vk8em")
 [node name="Fall" type="Node" parent="StateMachine"]
 script = ExtResource("8_3xy24")
 
+[node name="WallJump" type="Node" parent="StateMachine"]
+script = ExtResource("10_awppf")
+
 [node name="Timers" type="Node" parent="."]
 
 [node name="JumpBufferTimer" type="Timer" parent="Timers"]
@@ -139,3 +143,15 @@ one_shot = true
 
 [node name="CoyoteTimer" type="Timer" parent="Timers"]
 one_shot = true
+
+[node name="Raycasts" type="Node2D" parent="."]
+
+[node name="WallJump" type="Node2D" parent="Raycasts"]
+
+[node name="BottomLeft" type="RayCast2D" parent="Raycasts/WallJump"]
+position = Vector2(-3, 12)
+target_position = Vector2(-4, 0)
+
+[node name="BottomRight" type="RayCast2D" parent="Raycasts/WallJump"]
+position = Vector2(3, 12)
+target_position = Vector2(4, 0)
