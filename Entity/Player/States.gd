@@ -7,3 +7,6 @@ extends Node
 @onready var JumpPeak = $JumpPeak
 @onready var Fall = $Fall
 @onready var WallJump = $WallJump
+@onready var WallSlide = $WallSlide
+@onready var WallGrab = $WallGrab
+@onready var WallClimb = $WallClimb
