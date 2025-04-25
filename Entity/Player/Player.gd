@@ -55,6 +55,7 @@ var Deceleration = GroundDeceleration
 var moveDirectionX = 0
 var jumps = 0
 var wallDirection = Vector2.ZERO
+var wallClimbDirection = Vector2.ZERO
 var facing = 1
 var climbStamina = MaxClimbStamina
 
@@ -95,7 +96,7 @@ func _physics_process(delta: float) -> void:
 	
 	# Handle Movements
 	HandleMaxFallVelocity()
-	HorizontalMovement()
+	#HorizontalMovement()
 	HandleJump()
 	
 	# Commit movement
@@ -107,6 +108,7 @@ func ChangeState(newState):
 		currentState = newState
 		previousState.ExitState()
 		currentState.EnterState()
+		print('from: ' + previousState.Name + ' to ' + newState.Name)
 		return
 
 #endregion
@@ -136,6 +138,7 @@ func HandleJumpBuffer():
 func HandleLanding():
 	if(is_on_floor()):
 		jumps = 0
+		climbStamina = MaxClimbStamina
 		ChangeState(States.Idle)
 
 func HandleWallJump():
@@ -150,12 +153,12 @@ func HandleWallSlide():
 				ChangeState(States.WallSlide)
 
 func HandleWallGrab():
-	GetWallDirection()
-	if(wallDirection != Vector2.ZERO):
+	GetCanWallClimb()
+	if(wallClimbDirection != Vector2.ZERO):
 		if(keyClimb and climbStamina > 0):
 			ChangeState(States.WallGrab)
 
-func HanleWallRelease():
+func HandleWallRelease():
 	if(!keyClimb or climbStamina <= 0):
 		ChangeState(States.Fall)
 
@@ -167,6 +170,14 @@ func GetWallDirection():
 	else:
 		wallDirection = Vector2.ZERO
 
+func GetCanWallClimb():
+	if(RCWallKickLeft.is_colliding() and RCWallClimbTopLeft.is_colliding()):
+		wallClimbDirection = Vector2.LEFT
+	elif(RCWallKickRight.is_colliding() and RCWallClimbTopRight.is_colliding()):
+		wallClimbDirection = Vector2.LEFT
+	else:
+		wallClimbDirection = Vector2.ZERO
+
 func GetInputStates():
 	keyUp = Input.is_action_pressed("KeyUp")
 	keyDown = Input.is_action_pressed("KeyDown")
@@ -174,7 +185,7 @@ func GetInputStates():
 	keyRight = Input.is_action_pressed("KeyRight")
 	keyJump = Input.is_action_pressed("KeyJump")
 	keyJumpPressed = Input.is_action_just_pressed("KeyJump")
-	keyClimb = Input.is_action_just_pressed("KeyClimb")
+	keyClimb = Input.is_action_pressed("KeyClimb")
 	
 	if(keyRight): facing = 1
 	if(keyLeft): facing = -1
