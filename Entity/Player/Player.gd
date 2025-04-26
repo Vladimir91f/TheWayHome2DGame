@@ -11,14 +11,8 @@ extends CharacterBody2D
 @onready var JumpBufferTimer = $Timers/JumpBufferTimer
 @onready var CoyoteTimer = $Timers/CoyoteTimer
 
-@onready var RCWallKickLeft = $Raycasts/WallJump/WallKickLeft
-@onready var RCWallKickRight= $Raycasts/WallJump/WallKickRight
-@onready var RCWallClimbTopLeft = $Raycasts/WallClimb/WallClimbTopLeft
-@onready var RCWallClimbTopRight = $Raycasts/WallClimb/WallClimbTopRight
-@onready var RCWallClimbLimitTopLeft = $Raycasts/WallClimb/WallClimbLimitTopLeft
-@onready var RCWallClimbLimitTopRight = $Raycasts/WallClimb/WallClimbLimitTopRight
-@onready var RCWallClimbLimitBottomLeft = $Raycasts/WallClimb/WallClimbLimitBottomLeft
-@onready var RCWallClimbLimitBottomRight = $Raycasts/WallClimb/WallClimbLimitBottomRight
+@onready var RCBottomLeft = $Raycasts/WallJump/BottomLeft
+@onready var RCBottomRight = $Raycasts/WallJump/BottomRight
 
 # Physics variables
 const RunSpeed = 120
@@ -42,12 +36,6 @@ const WallJumpYSpeedPeak = 0 # Скорость при которой прыжо
 const WallJumpVelocity = -190
 const WallJumpHSpeed = 120
 
-const WallSlideSpeed = 40
-const ClimbSpeed = 30
-const MaxClimbStamina = 300 # Измеряется в тиках, не в секундах
-const GrabStaminaCost = 1
-const ClimbStaminaCost = 2
-
 var moveSpeed = RunSpeed
 var jumpSpeed = JumpVelocity
 var Acceleration = GroundAcceleration
@@ -56,7 +44,6 @@ var moveDirectionX = 0
 var jumps = 0
 var wallDirection = Vector2.ZERO
 var facing = 1
-var climbStamina = MaxClimbStamina
 
 # Input variables
 var keyUp = false
@@ -65,7 +52,6 @@ var keyLeft = false
 var keyRight = false
 var keyJump = false
 var keyJumpPressed = false
-var keyClimb = false
 
 # State Machine
 var currentState = null
@@ -143,26 +129,10 @@ func HandleWallJump():
 	if((keyJumpPressed or JumpBufferTimer.time_left > 0) and wallDirection != Vector2.ZERO):
 		ChangeState(States.WallJump)
 
-func HandleWallSlide():
-	if((wallDirection == Vector2.LEFT and keyLeft and RCWallClimbTopLeft.is_colliding() and RCWallKickLeft.is_colliding())
-		or (wallDirection == Vector2.RIGHT and keyRight and RCWallClimbTopRight.is_colliding() and RCWallKickRight.is_colliding())):
-			if(!keyJump):
-				ChangeState(States.WallSlide)
-
-func HandleWallGrab():
-	GetWallDirection()
-	if(wallDirection != Vector2.ZERO):
-		if(keyClimb and climbStamina > 0):
-			ChangeState(States.WallGrab)
-
-func HanleWallRelease():
-	if(!keyClimb or climbStamina <= 0):
-		ChangeState(States.Fall)
-
 func GetWallDirection():
-	if(RCWallKickRight.is_colliding()):
+	if(RCBottomRight.is_colliding()):
 		wallDirection = Vector2.RIGHT
-	elif(RCWallKickLeft.is_colliding()):
+	elif(RCBottomLeft.is_colliding()):
 		wallDirection = Vector2.LEFT
 	else:
 		wallDirection = Vector2.ZERO
@@ -174,7 +144,6 @@ func GetInputStates():
 	keyRight = Input.is_action_pressed("KeyRight")
 	keyJump = Input.is_action_pressed("KeyJump")
 	keyJumpPressed = Input.is_action_just_pressed("KeyJump")
-	keyClimb = Input.is_action_just_pressed("KeyClimb")
 	
 	if(keyRight): facing = 1
 	if(keyLeft): facing = -1
@@ -208,4 +177,4 @@ func HandleFlipH():
 #endregion
 
 # How to Code a PLATFORMER WALL CLIMB
-# 43:40
+# 00:00
