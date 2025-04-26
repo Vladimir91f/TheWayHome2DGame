@@ -10,6 +10,7 @@ func Update(_delta: float):
 	Player.HandleFalling()
 	Player.HandleJump()
 	Player.HorizontalMovement()
+	Player.HandleDash()
 	HandleAnimation()
 	HandleIdle()
 

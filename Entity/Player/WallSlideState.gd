@@ -20,7 +20,7 @@ func Update(_delta):
 	HandleAnimation()
 
 func HandleWallSlideMovement():
-	if(Player.wallDirection == Vector2.ZERO):
+	if(Player.wallDirection == Vector2.ZERO or (!Player.keyLeft and !Player.keyRight)):
 		Player.ChangeState(States.Fall)
 	
 	if((Player.wallDirection == Vector2.LEFT and Player.keyLeft)

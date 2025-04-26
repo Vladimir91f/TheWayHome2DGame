@@ -8,3 +8,4 @@ extends Node
 @onready var Fall = $Fall
 @onready var WallJump = $WallJump
 @onready var WallSlide = $WallSlide
+@onready var Dash = $Dash

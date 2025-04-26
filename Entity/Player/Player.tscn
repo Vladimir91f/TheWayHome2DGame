@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=3 uid="uid://je6a6pu6taev"]
+[gd_scene load_steps=25 format=3 uid="uid://je6a6pu6taev"]
 
 [ext_resource type="Texture2D" uid="uid://d0lbmwaw2ip8o" path="res://Resources/Character base.png" id="1_367n4"]
 [ext_resource type="Script" uid="uid://yiv3vhog7d82" path="res://Entity/Player/Player.gd" id="1_ic0o1"]
@@ -11,6 +11,7 @@
 [ext_resource type="Script" uid="uid://bmp24hnpqheit" path="res://Entity/Player/FallState.gd" id="8_3xy24"]
 [ext_resource type="Script" uid="uid://cxoseqlmtcmyh" path="res://Entity/Player/WallJumpState.gd" id="10_awppf"]
 [ext_resource type="Script" uid="uid://vbcos810e4fu" path="res://Entity/Player/WallSlideState.gd" id="11_jyegj"]
+[ext_resource type="Script" uid="uid://clllic1uuv1fr" path="res://Entity/Player/DashState.gd" id="12_2iid8"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ic0o1"]
 size = Vector2(8, 20)
@@ -115,15 +116,56 @@ tracks/0/keys = {
 "values": [80]
 }
 
+[sub_resource type="Animation" id="Animation_2iid8"]
+resource_name = "Dash"
+loop_mode = 1
+step = 0.025
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [88]
+}
+
+[sub_resource type="Animation" id="Animation_m4cv6"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [88]
+}
+
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_ic0o1"]
 _data = {
+&"Dash": SubResource("Animation_2iid8"),
 &"Fall": SubResource("Animation_43y4t"),
 &"Idle": SubResource("Animation_367n4"),
 &"Jump": SubResource("Animation_0s3jf"),
+&"RESET": SubResource("Animation_m4cv6"),
 &"Run": SubResource("Animation_rj2x4"),
 &"WallJump": SubResource("Animation_awppf"),
 &"WallSlide": SubResource("Animation_jyegj")
 }
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2iid8"]
+atlas = ExtResource("1_367n4")
+region = Rect2(0, 352, 32, 32)
+
+[sub_resource type="Gradient" id="Gradient_m4cv6"]
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0)
 
 [node name="Player" type="CharacterBody2D"]
 script = ExtResource("1_ic0o1")
@@ -132,7 +174,7 @@ script = ExtResource("1_ic0o1")
 texture = ExtResource("1_367n4")
 hframes = 8
 vframes = 14
-frame = 8
+frame = 88
 
 [node name="Collider" type="CollisionShape2D" parent="."]
 position = Vector2(0, 6)
@@ -174,12 +216,21 @@ script = ExtResource("10_awppf")
 [node name="WallSlide" type="Node" parent="StateMachine"]
 script = ExtResource("11_jyegj")
 
+[node name="Dash" type="Node" parent="StateMachine"]
+script = ExtResource("12_2iid8")
+
 [node name="Timers" type="Node" parent="."]
 
 [node name="JumpBufferTimer" type="Timer" parent="Timers"]
 one_shot = true
 
 [node name="CoyoteTimer" type="Timer" parent="Timers"]
+one_shot = true
+
+[node name="DashTimer" type="Timer" parent="Timers"]
+one_shot = true
+
+[node name="DashBuffer" type="Timer" parent="Timers"]
 one_shot = true
 
 [node name="Raycasts" type="Node2D" parent="."]
@@ -193,3 +244,16 @@ target_position = Vector2(-3, 0)
 [node name="WallKickRight" type="RayCast2D" parent="Raycasts/WallJump"]
 position = Vector2(4.01, 12)
 target_position = Vector2(3, 0)
+
+[node name="GraphicsEffects" type="Node2D" parent="."]
+
+[node name="Dash" type="Node2D" parent="GraphicsEffects"]
+
+[node name="DashGhost" type="CPUParticles2D" parent="GraphicsEffects/Dash"]
+emitting = false
+amount = 3
+texture = SubResource("AtlasTexture_2iid8")
+one_shot = true
+speed_scale = 3.0
+gravity = Vector2(0, 0)
+color_ramp = SubResource("Gradient_m4cv6")

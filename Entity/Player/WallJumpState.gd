@@ -17,6 +17,7 @@ func Update(delta):
 	Player.HandleGravity(delta, Player.GravityJump)
 	HandleWallKickMovement()
 	HandleWallJumpEnd()
+	Player.HandleDash()
 	HandleAnimation()
 
 func ShouldOnlyJumpButtonWallKick(shouldEnable: bool):
