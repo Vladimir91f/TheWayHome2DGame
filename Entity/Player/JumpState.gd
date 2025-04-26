@@ -10,9 +10,9 @@ func ExitState():
 func Update(delta):
 	Player.HandleGravity(delta)
 	Player.HorizontalMovement()
+	HandleJumpToFall()
 	Player.HandleWallJump()
 	Player.HandleWallGrab()
-	HandleJumpToFall()
 	HandleAnimation()
 
 func HandleJumpToFall():

@@ -6,17 +6,17 @@ func EnterState():
 	Name = 'WallGrab'
 	Player.velocity = Vector2.ZERO
 	
-	#if(Player.wallClimbDirection == Vector2.LEFT):
-		#Player.velocity.x = -WallMagnetSpeed
-	#elif(Player.wallClimbDirection == Vector2.RIGHT):
-		#Player.velocity.x = WallMagnetSpeed
+	if(Player.wallClimbDirection == Vector2.LEFT):
+		Player.velocity.x = -WallMagnetSpeed
+	elif(Player.wallClimbDirection == Vector2.RIGHT):
+		Player.velocity.x = WallMagnetSpeed
 
 func ExitState():
 	pass
 
 func Update(_delta: float):
-	Player.HandleWallRelease()
-	HandleClimb()
+	Player.HanleWallRelease()
+	#HandleClimb()
 	Player.climbStamina -= Player.GrabStaminaCost
 	Player.HandleWallJump()
 	HandleAnimation()
@@ -27,4 +27,4 @@ func HandleClimb():
 
 func HandleAnimation():
 	Player.Animator.play('WallGrab')
-	Player.Sprite.flip_h = (Player.wallDirection == Vector2.LEFT)
+	Player.Sprite.flip_h = (Player.wallClimbDirection == Vector2.LEFT)
