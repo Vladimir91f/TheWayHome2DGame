@@ -16,6 +16,7 @@ func Update(delta: float):
 	Player.HandleJump()
 	Player.HandleJumpBuffer()
 	Player.HandleWallJump()
+	Player.HandleWallSlide()
 	HandleAnimation()
 
 func HandleAnimation():

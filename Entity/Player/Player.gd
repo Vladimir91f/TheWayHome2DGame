@@ -11,8 +11,8 @@ extends CharacterBody2D
 @onready var JumpBufferTimer = $Timers/JumpBufferTimer
 @onready var CoyoteTimer = $Timers/CoyoteTimer
 
-@onready var RCBottomLeft = $Raycasts/WallJump/BottomLeft
-@onready var RCBottomRight = $Raycasts/WallJump/BottomRight
+@onready var RCWallKickLeft = $Raycasts/WallJump/WallKickLeft
+@onready var RCWallKickRight = $Raycasts/WallJump/WallKickRight
 
 # Physics variables
 const RunSpeed = 120
@@ -35,6 +35,8 @@ const WallKickDeceleration = 5
 const WallJumpYSpeedPeak = 0 # Скорость при которой прыжок от стены закончится и перейдет в состояние падения
 const WallJumpVelocity = -190
 const WallJumpHSpeed = 120
+
+const WallSlideSpeed = 40
 
 var moveSpeed = RunSpeed
 var jumpSpeed = JumpVelocity
@@ -129,10 +131,16 @@ func HandleWallJump():
 	if((keyJumpPressed or JumpBufferTimer.time_left > 0) and wallDirection != Vector2.ZERO):
 		ChangeState(States.WallJump)
 
+func HandleWallSlide():
+	if((wallDirection == Vector2.LEFT and keyLeft and RCWallKickLeft.is_colliding())
+		or (wallDirection == Vector2.RIGHT and keyRight and RCWallKickRight.is_colliding())):
+			if(!keyJump):
+				ChangeState(States.WallSlide)
+
 func GetWallDirection():
-	if(RCBottomRight.is_colliding()):
+	if(RCWallKickRight.is_colliding()):
 		wallDirection = Vector2.RIGHT
-	elif(RCBottomLeft.is_colliding()):
+	elif(RCWallKickLeft.is_colliding()):
 		wallDirection = Vector2.LEFT
 	else:
 		wallDirection = Vector2.ZERO
