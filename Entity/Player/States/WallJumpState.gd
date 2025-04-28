@@ -3,13 +3,13 @@ extends PlayerState
 var lastWallDirection
 var shouldEnableWallKick
 
-func EnterState():
+func Enter():
 	Name = 'WallJump'
 	Player.velocity.y = Player.WallJumpVelocity
 	lastWallDirection = Player.wallDirection
 	ShouldOnlyJumpButtonWallKick(false)
 
-func ExitState():
+func Exit():
 	pass
 
 func Update(delta):

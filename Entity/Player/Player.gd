@@ -87,7 +87,6 @@ var previousState = null
 #region Main Loop functions
 
 func _ready() -> void:
-	# Initialize State Machine
 	for state in States.get_children():
 		state.States = States
 		state.Player = self
@@ -119,8 +118,8 @@ func ChangeState(newState):
 	if(newState != null):
 		previousState = currentState
 		currentState = newState
-		previousState.ExitState()
-		currentState.EnterState()
+		previousState.Exit()
+		currentState.Enter()
 		return
 
 #endregion

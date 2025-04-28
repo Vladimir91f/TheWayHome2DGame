@@ -3,7 +3,7 @@ extends PlayerState
 const DashSquish = 0.25
 var DistortionEffect = preload("res://Entity/Player/DashDistortion.tscn")
 
-func EnterState():
+func Enter():
 	Name = 'Dash'
 	OS.delay_msec(Player.DashDelayEffect)
 	Player.dashDirection = Player.GetDashDirection()
@@ -14,10 +14,8 @@ func EnterState():
 	var _distortion = DistortionEffect.instantiate()
 	_distortion.global_position = Player.global_position
 	get_tree().root.get_node('World').add_child(_distortion)
-	#Player.Animator.play('Dash')
-	#Player.HandleFlipH()
 
-func ExitState():
+func Exit():
 	pass
 	
 func Draw():

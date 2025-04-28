@@ -1,9 +1,9 @@
 extends PlayerState
 
-func EnterState():
+func Enter():
 	Name = 'Run'
 
-func ExitState():
+func Exit():
 	pass
 
 func Update(_delta: float):

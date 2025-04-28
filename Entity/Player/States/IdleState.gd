@@ -1,9 +1,9 @@
 extends PlayerState
 
-func EnterState():
+func Enter():
 	Name = 'Idle'
 
-func ExitState():
+func Exit():
 	pass
 	
 func Draw():

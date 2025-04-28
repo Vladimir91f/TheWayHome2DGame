@@ -2,14 +2,14 @@ extends PlayerState
 
 const WallMagnetSpeed = 50
 
-func EnterState():
+func Enter():
 	Name = 'WallSlide'
 	if(Player.wallDirection == Vector2.LEFT):
 		Player.velocity.x = -WallMagnetSpeed
 	elif(Player.wallDirection == Vector2.RIGHT):
 		Player.velocity.x = WallMagnetSpeed
 
-func ExitState():
+func Exit():
 	pass
 
 func Update(_delta):

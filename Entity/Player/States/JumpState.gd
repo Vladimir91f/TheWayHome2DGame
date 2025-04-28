@@ -1,10 +1,10 @@
 extends PlayerState
 
-func EnterState():
+func Enter():
 	Name = 'Jump'
 	Player.velocity.y = Player.jumpSpeed
 
-func ExitState():
+func Exit():
 	pass
 
 func Update(delta):
