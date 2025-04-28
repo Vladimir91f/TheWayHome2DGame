@@ -1,4 +1,4 @@
-extends PlayerState
+extends BaseState
 
 func Enter():
 	Name = 'Run'
@@ -7,17 +7,17 @@ func Exit():
 	pass
 
 func Update(_delta: float):
-	Player.HandleFalling()
-	Player.HandleJump()
-	Player.HorizontalMovement()
-	Player.HandleDash()
+	FSM.Fall.Handle()
+	FSM.Jump.Handle()
+	FSMOwner.HorizontalMovement()
+	FSM.Dash.Handle()
 	HandleAnimation()
 	HandleIdle()
 
 func HandleIdle():
-	if(Player.moveDirectionX == 0):
-		Player.ChangeState(States.Idle)
+	if(FSMOwner.moveDirectionX == 0):
+		FSM.ChangeState(FSM.Idle)
 		
 func HandleAnimation():
-	Player.Animator.play('Run')
-	Player.HandleFlipH()
+	FSMOwner.Animator.play('Run')
+	FSMOwner.HandleFlipH()

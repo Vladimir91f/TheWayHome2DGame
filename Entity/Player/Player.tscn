@@ -2,7 +2,7 @@
 
 [ext_resource type="Texture2D" uid="uid://d0lbmwaw2ip8o" path="res://Resources/Character base.png" id="1_367n4"]
 [ext_resource type="Script" uid="uid://yiv3vhog7d82" path="res://Entity/Player/Player.gd" id="1_ic0o1"]
-[ext_resource type="Script" uid="uid://3nrwt2q0fv0h" path="res://Entity/Player/States.gd" id="3_rj2x4"]
+[ext_resource type="Script" uid="uid://opl6nnqnr8oo" path="res://Entity/Player/PlayerFSM.gd" id="3_2iid8"]
 [ext_resource type="Script" uid="uid://b383bw232h42m" path="res://Entity/Player/States/IdleState.gd" id="4_0s3jf"]
 [ext_resource type="Script" uid="uid://b4mdtphfdqx2w" path="res://Entity/Player/States/LockedState.gd" id="4_mxhgp"]
 [ext_resource type="Script" uid="uid://c7g4doq2oeq3k" path="res://Entity/Player/States/RunState.gd" id="5_43y4t"]
@@ -190,13 +190,13 @@ position_smoothing_enabled = true
 position_smoothing_speed = 6.0
 
 [node name="StateMachine" type="Node" parent="."]
-script = ExtResource("3_rj2x4")
-
-[node name="Locked" type="Node" parent="StateMachine"]
-script = ExtResource("4_mxhgp")
+script = ExtResource("3_2iid8")
 
 [node name="Idle" type="Node" parent="StateMachine"]
 script = ExtResource("4_0s3jf")
+
+[node name="Locked" type="Node" parent="StateMachine"]
+script = ExtResource("4_mxhgp")
 
 [node name="Run" type="Node" parent="StateMachine"]
 script = ExtResource("5_43y4t")

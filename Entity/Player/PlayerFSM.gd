@@ -1,5 +1,6 @@
-extends Node
+extends StateMachine
 
+# States for Player FSM
 @onready var Locked = $Locked
 @onready var Idle = $Idle
 @onready var Run = $Run

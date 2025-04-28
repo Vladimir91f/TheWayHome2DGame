@@ -1,58 +1,66 @@
-extends PlayerState
+extends BaseState
+
+const WallJumpVelocity = -190
+const WallJumpHSpeed = 120
 
 var lastWallDirection
 var shouldEnableWallKick
 
 func Enter():
 	Name = 'WallJump'
-	Player.velocity.y = Player.WallJumpVelocity
-	lastWallDirection = Player.wallDirection
+	FSMOwner.velocity.y = WallJumpVelocity
+	lastWallDirection = FSMOwner.wallDirection
 	ShouldOnlyJumpButtonWallKick(false)
 
 func Exit():
 	pass
 
 func Update(delta):
-	Player.GetWallDirection()
-	Player.HandleGravity(delta, Player.GravityJump)
+	FSMOwner.GetWallDirection()
+	FSMOwner.HandleGravity(delta, FSMOwner.GravityJump)
 	HandleWallKickMovement()
 	HandleWallJumpEnd()
-	Player.HandleDash()
+	FSM.Dash.Handle()
 	HandleAnimation()
+
+func Handle():
+	FSMOwner.GetWallDirection()
+	if((FSMOwner.keyJumpPressed or FSMOwner.JumpBufferTimer.time_left > 0) and FSMOwner.wallDirection != Vector2.ZERO):
+		FSM.ChangeState(FSM.WallJump)
 
 func ShouldOnlyJumpButtonWallKick(shouldEnable: bool):
 	shouldEnableWallKick = shouldEnable
-	var jumpVelocityX = Player.WallJumpHSpeed * Player.wallDirection.x * -1
+	var jumpVelocityX = WallJumpHSpeed * FSMOwner.wallDirection.x * -1
 	if(shouldEnable):
-		if(Player.keyLeft or Player.keyRight):
-			Player.velocity.x = jumpVelocityX
+		if(FSMOwner.keyLeft or FSMOwner.keyRight):
+			FSMOwner.velocity.x = jumpVelocityX
 		else:
-			if(Player.jumps == Player.MaxJumps):
-				Player.velocity.x = jumpVelocityX
+			if(FSMOwner.jumps == FSMOwner.MaxJumps):
+				FSMOwner.velocity.x = jumpVelocityX
 			else:
-				Player.ChangeState(States.Fall)
+				FSM.ChangeState(FSM.Fall)
 	else:
-		Player.velocity.x = jumpVelocityX
+		FSMOwner.velocity.x = jumpVelocityX
 
 func HandleWallKickMovement():
-	if(!Player.keyLeft and !Player.keyRight):
-		Player.velocity.x = move_toward(Player.velocity.x, 0, Player.WallKickAcceleration) 
+	if(!FSMOwner.keyLeft and !FSMOwner.keyRight):
+		FSMOwner.velocity.x = move_toward(FSMOwner.velocity.x, 0, FSMOwner.WallKickAcceleration) 
 	else:
-		if((lastWallDirection == Vector2.LEFT and Player.keyRight) or (lastWallDirection == Vector2.RIGHT and Player.keyLeft)):
-			Player.HorizontalMovement(Player.WallKickAcceleration, Player.WallKickDeceleration)
+		if((lastWallDirection == Vector2.LEFT and FSMOwner.keyRight) or (lastWallDirection == Vector2.RIGHT and FSMOwner.keyLeft)):
+			FSMOwner.HorizontalMovement(FSMOwner.WallKickAcceleration, FSMOwner.WallKickDeceleration)
 
 func HandleWallJumpEnd():
-	if(Player.velocity.y >= Player.WallJumpYSpeedPeak):
-		Player.ChangeState(States.Fall)
+	if(FSMOwner.velocity.y >= FSMOwner.WallJumpYSpeedPeak):
+		FSM.ChangeState(FSM.Fall)
 		
-	if(Player.wallDirection != lastWallDirection and Player.wallDirection != Vector2.ZERO):
-		Player.ChangeState(States.Fall)
+	if(FSMOwner.wallDirection != lastWallDirection and FSMOwner.wallDirection != Vector2.ZERO):
+		FSM.ChangeState(FSM.Fall)
 		
 
 func HandleAnimation():
-	if(!Player.keyLeft and !Player.keyRight and shouldEnableWallKick):
-		Player.Animator.play('WallKick')
-		Player.Sprite.flip_h = Player.velocity.x > 0
+	if(!FSMOwner.keyLeft and !FSMOwner.keyRight and shouldEnableWallKick):
+		FSMOwner.Animator.play('WallKick')
+		FSMOwner.Sprite.flip_h = FSMOwner.velocity.x > 0
 	else:
-		Player.Animator.play('WallJump')
-		Player.Sprite.flip_h = Player.velocity.x < 0
+		FSMOwner.Animator.play('WallJump')
+		FSMOwner.Sprite.flip_h = FSMOwner.velocity.x < 0

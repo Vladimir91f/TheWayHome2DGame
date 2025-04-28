@@ -7,7 +7,8 @@ extends CharacterBody2D
 @onready var Collider = $Collider
 @onready var Animator = $Animator
 @onready var Camera = $Camera
-@onready var States = $StateMachine
+
+@onready var FSM = $StateMachine
 
 @onready var JumpBufferTimer = $Timers/JumpBufferTimer
 @onready var CoyoteTimer = $Timers/CoyoteTimer
@@ -30,38 +31,23 @@ const AirDeceleration = 20
 const GravityJump = 600
 const GravityFall = 700
 const MaxFallVelocity = 700
-const JumpVelocity = -240
-const JumpMultiplier = 0.5
-const MaxJumps = 1 # Если увеличить можно сделать двойные прыжки
-const CoyoteTime = 0.1 # 0.1 - 6 кадров: FPS / желаемое кол-во кадров = время в секундах
-const JumpBufferTime = 0.15 # 0.15 - 9 кадров: FPS / желаемое кол-во кадров = время в секундах
 
 const WallKickAcceleration = 4
 const WallKickDeceleration = 5
 const WallJumpYSpeedPeak = 0 # Скорость при которой прыжок от стены закончится и перейдет в состояние падения
-const WallJumpVelocity = -190
-const WallJumpHSpeed = 120
 
-const WallSlideSpeed = 40
-
-const MaxDashes = 1
 const DashSpeed = 300
 const DashAcceleration = 4
 const DashTime = 0.15
-const DashBufferTime = 0.075
-const DashMomentumCarry = 0.5
 const DashDelayEffect = 30
 
 # Player variables
 var moveSpeed = RunSpeed
-var jumpSpeed = JumpVelocity
 var Acceleration = GroundAcceleration
 var Deceleration = GroundDeceleration
 var moveDirectionX = 0
-var jumps = 0
 var wallDirection = Vector2.ZERO
 
-var dashes = 0
 var dashDirection: Vector2
 var facing = 1
 
@@ -78,49 +64,32 @@ var keyJump = false
 var keyJumpPressed = false
 var keyDash = false
 
-# State Machine
-var currentState = null
-var previousState = null
-
 #endregion
 
 #region Main Loop functions
 
 func _ready() -> void:
-	for state in States.get_children():
-		state.States = States
-		state.Player = self
-	previousState = States.Fall
-	currentState = States.Fall
+	FSM.Initialize(self)
 
 func _draw() -> void:
-	currentState.Draw()
+	pass
 
 func _physics_process(delta: float) -> void:
 	# Get input states
 	GetInputStates()
 	
 	# Update State
-	currentState.Update(delta)
+	FSM.CurrentState.Update(delta)
 	
 	# Handle Movements
 	HandleMaxFallVelocity()
 	HorizontalMovement()
-	HandleJump()
 	
 	# Commit movement
 	move_and_slide()
 	
 	# Update Squish
 	UpdateSquish()
-
-func ChangeState(newState):
-	if(newState != null):
-		previousState = currentState
-		currentState = newState
-		previousState.Exit()
-		currentState.Enter()
-		return
 
 #endregion
 
@@ -133,35 +102,14 @@ func HorizontalMovement(acceleration: float = Acceleration, deceleration: float 
 	else: # Для плавной остановки игрока
 		velocity.x = move_toward(velocity.x, moveDirectionX * moveSpeed, deceleration)
 
-func HandleFalling():
-	if(!is_on_floor()):
-		# Запускаем койот-таймер
-		CoyoteTimer.start(CoyoteTime)
-		ChangeState(States.Fall)
-
 func HandleMaxFallVelocity():
 	if(velocity.y > MaxFallVelocity): velocity.y = MaxFallVelocity
 
-func HandleJumpBuffer():
-	if(keyJumpPressed):
-		JumpBufferTimer.start(JumpBufferTime)
-
 func HandleLanding():
 	if(is_on_floor()):
-		jumps = 0
-		dashes = 0
-		ChangeState(States.Idle)
-
-func HandleWallJump():
-	GetWallDirection()
-	if((keyJumpPressed or JumpBufferTimer.time_left > 0) and wallDirection != Vector2.ZERO):
-		ChangeState(States.WallJump)
-
-func HandleWallSlide():
-	if((wallDirection == Vector2.LEFT and keyLeft and RCWallKickLeft.is_colliding())
-		or (wallDirection == Vector2.RIGHT and keyRight and RCWallKickRight.is_colliding())):
-			if(!keyJump):
-				ChangeState(States.WallSlide)
+		FSM.Jump.jumps = 0
+		FSM.Dash.dashes = 0
+		FSM.ChangeState(FSM.Idle)
 
 func GetWallDirection():
 	if(RCWallKickRight.is_colliding()):
@@ -170,15 +118,6 @@ func GetWallDirection():
 		wallDirection = Vector2.LEFT
 	else:
 		wallDirection = Vector2.ZERO
-
-func HandleDash():
-	if(dashes < MaxDashes):
-		if(keyDash):
-			if(DashTimer.time_left <= 0):
-				DashTimer.start(DashBufferTime)
-				await DashTimer.timeout
-				dashes += 1
-				ChangeState(States.Dash)
 
 func GetDashDirection() -> Vector2:
 	var _dir = Vector2.ZERO
@@ -203,25 +142,6 @@ func GetInputStates():
 func HandleGravity(delta, gravity: float = GravityJump):
 	if(!is_on_floor()):
 		velocity.y += gravity * delta
-
-func HandleJump():
-	if(is_on_floor()):
-		if(jumps < MaxJumps):
-			if(keyJumpPressed or JumpBufferTimer.time_left > 0):
-				JumpBufferTimer.stop()
-				jumps += 1
-				ChangeState(States.Jump)
-	else:
-		# Обработка прыжка в воздухе, если первый прыжок уже был сделан с земли
-		if(jumps < MaxJumps and jumps > 0 and keyJumpPressed):
-			jumps += 1
-			ChangeState(States.Jump)
-		# Обработка прыжка с таймером койота
-		if(CoyoteTimer.time_left > 0):
-			if(keyJumpPressed and jumps < MaxJumps):
-				CoyoteTimer.stop()
-				jumps += 1
-				ChangeState(States.Jump)
 
 func UpdateSquish():
 	Sprite.scale.x = squishX

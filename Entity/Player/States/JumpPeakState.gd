@@ -1,4 +1,4 @@
-extends PlayerState
+extends BaseState
 
 func Enter():
 	Name = 'JumpPeak'
@@ -10,7 +10,7 @@ func Draw():
 	pass
 
 func Update(_delta: float):
-	Player.ChangeState(States.Fall)
+	FSM.ChangeState(FSM.Fall)
 
 func HandleAnimation():
 	pass

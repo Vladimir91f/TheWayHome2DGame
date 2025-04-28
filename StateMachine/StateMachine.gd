@@ -1,39 +1,42 @@
 class_name StateMachine extends Node
 
-# Pick this script to parent States node.
+# Pick this script to StateMachine node.
 
-var States: Array[Node]
+var States = null
 var CurrentState: BaseState = null
-var previousState: BaseState = null
-var initialState: BaseState = null
-
-# Called when the node enters the scene tree for the first time.
-func _ready() -> void:
-	Initialize()
-
-func SetStates(states: Array[Node]):
-	States = states
-
-func SetInitialState(_initialState: BaseState):
-	initialState = _initialState
+var _previousState: BaseState = null
+var _initialState: BaseState = null
 
 # Initialize State Machine
-func Initialize():
-	if(States == null or States.size() == 0):
-		print('States not found! Please use SetStates() method.')
+func Initialize(fsmOwner: CharacterBody2D):
+	if(fsmOwner == null):
+		printerr('Owner not set.')
 		return
 
-	if(initialState == null):
-		print('Initial State not found! Please use SetInitialState() method.')
-
-	for state in self.get_children():
+	States = self.get_children()
+	if(States == null or States.size() == 0):
+		printerr('States not set.')
+		return
+		
+	_initialState = States[0]
+	if(_initialState == null):
+		printerr('Initial State not set.')
+		return
+	
+	for state in States:
 		state.States = States
-		state.Owner = self
+		state.FSMOwner = fsmOwner
+		if(fsmOwner.FSM == null):
+			printerr('Owner must have FSM!')
+			return
+		state.FSM = fsmOwner.FSM
+		
+	CurrentState = _initialState
 
 func ChangeState(newState):
 	if(newState != null):
-		previousState = CurrentState
+		_previousState = CurrentState
 		CurrentState = newState
-		previousState.Exit()
+		_previousState.Exit()
 		CurrentState.Enter()
 		return
