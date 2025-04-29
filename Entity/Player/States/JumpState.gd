@@ -4,6 +4,7 @@ const JumpBufferTime = 0.15 # 0.15 - 9 кадров: FPS / желаемое ко
 const JumpVelocity = -240
 const JumpMultiplier = 0.5
 const MaxJumps = 1 # Если увеличить можно сделать двойные прыжки
+
 var jumps = 0
 
 func Enter():

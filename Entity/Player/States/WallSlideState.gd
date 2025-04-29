@@ -14,8 +14,8 @@ func Exit():
 	pass
 
 func Update(_delta):
-	FSMOwner.GetWallDirection()
 	FSMOwner.HandleLanding()
+	FSM.WallJump.GetWallDirection()
 	FSM.WallJump.Handle()
 	HandleWallSlideMovement()
 	HandleAnimation()

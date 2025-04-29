@@ -10,12 +10,12 @@ func Draw():
 	pass
 
 func Update(_delta):
+	FSMOwner.HorizontalMovement()
 	FSM.Fall.Handle()
 	FSM.Jump.Handle()
-	FSMOwner.HorizontalMovement()
+	FSM.Dash.Handle()
 	if(FSMOwner.moveDirectionX != 0):
 		FSM.ChangeState(FSM.Run)
-	FSM.Dash.Handle()
 	HandleAnimation()
 
 func HandleAnimation():
